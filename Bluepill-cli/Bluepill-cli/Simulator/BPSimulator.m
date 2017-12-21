@@ -337,8 +337,6 @@
                 } else {
                     [BPUtils printInfo:DEBUGINFO withString:@"Got something weird from waitpid4"];
                 }
-                blockSelf.monitor.appPID = 0;
-                blockSelf.monitor.simulatorState = Completed;
                 // Post a APPCLOSED signal to the fifo
                 [blockSelf.stdOutHandle writeData:[@"\nBP_APP_PROC_ENDED\n" dataUsingEncoding:NSUTF8StringEncoding]];
             });
