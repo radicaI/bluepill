@@ -330,6 +330,7 @@
             dispatch_source_set_cancel_handler(source, ^{
                 // Post a APPCLOSED signal to the fifo
                 blockSelf.appProcessFinished = YES;
+                [BPUtils printInfo:DEBUGINFO withString:@"APP PROC ENDED"];
                 [blockSelf.stdOutHandle writeData:[@"\nBP_APP_PROC_ENDED\n" dataUsingEncoding:NSUTF8StringEncoding]];
             });
             dispatch_resume(source);

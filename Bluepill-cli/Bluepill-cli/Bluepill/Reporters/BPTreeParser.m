@@ -137,6 +137,7 @@ static const NSString * const kPassed = @"passed";
     NSArray *matches;
 
     if ([line isEqualToString:@"BP_APP_PROC_ENDED"]) {
+        [BPUtils printInfo:DEBUGINFO withString:@"Parser received APP_PROC_ENDED line"];
         logLine = NO;
     }
 
