@@ -25,7 +25,6 @@
 @property (nonatomic, strong) NSRunningApplication *app;
 @property (nonatomic, strong) NSFileHandle *stdOutHandle;
 @property (nonatomic, assign) BOOL needsRetry;
-@property (nonatomic, assign) BOOL appProcessFinished;
 
 @end
 
@@ -328,9 +327,19 @@
                 dispatch_source_cancel(source);
             });
             dispatch_source_set_cancel_handler(source, ^{
+                int status;
+                pid_t p;
+                p = wait4(pid, &status, WNOHANG, NULL);
+                if (p == 0) {
+                    [BPUtils printInfo:DEBUGINFO withString:@"NO PROCESS TO WAIT FOR!"];
+                } else if (pid == p) {
+                    [BPUtils printInfo:DEBUGINFO withString:@"WIFEXITED == %u WIFSIGNALED == %u", WIFEXITED(status), WIFSIGNALED(status)];
+                } else {
+                    [BPUtils printInfo:DEBUGINFO withString:@"Got something weird from waitpid4"];
+                }
+                blockSelf.monitor.appPID = 0;
+                blockSelf.monitor.simulatorState = Completed;
                 // Post a APPCLOSED signal to the fifo
-                blockSelf.appProcessFinished = YES;
-                [BPUtils printInfo:DEBUGINFO withString:@"APP PROC ENDED"];
                 [blockSelf.stdOutHandle writeData:[@"\nBP_APP_PROC_ENDED\n" dataUsingEncoding:NSUTF8StringEncoding]];
             });
             dispatch_resume(source);
