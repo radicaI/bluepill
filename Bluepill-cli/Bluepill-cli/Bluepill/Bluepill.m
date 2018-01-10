@@ -490,10 +490,7 @@ void onInterrupt(int ignore) {
     if (!isRunning && context.pid > 0 && [context.runner isApplicationLaunched] && !self.config.testing_NoAppWillRun) {
         // The tests ended before they even got started or the process is gone for some other reason
         [[BPStats sharedStats] endTimer:RUN_TESTS(context.attemptNumber)];
-        [BPUtils printInfo:ERROR withString:@"Application crashed before tests started!"];
-        [BPUtils printInfo:DEBUGINFO
-                withString:@"crashed because: %hhd %d %hhd %hhd",
-         isRunning, context.pid, [context.runner isApplicationLaunched], self.config.testing_NoAppWillRun];
+        [BPUtils printInfo:ERROR withString:@"Application crashed!"];
         [[BPStats sharedStats] addApplicationCrash];
         [self deleteSimulatorWithContext:context andStatus:BPExitStatusAppCrashed];
         return;
