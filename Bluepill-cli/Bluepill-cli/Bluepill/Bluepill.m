@@ -420,6 +420,11 @@ void onInterrupt(int ignore) {
         [[BPStats sharedStats] endTimer:RUN_TESTS(context.attemptNumber)];
         [[BPStats sharedStats] endTimer:stepName];
         [BPUtils printInfo:FAILED withString:@"Timeout: %@", stepName];
+        if (context.runner.device) {
+            [BPUtils printInfo:ERROR withString:@"simulator status: %@", context.runner.device.stateString];
+        } else {
+            [BPUtils printInfo:ERROR withString:@"simulator disappeared!"];
+        }
         NEXT([__self deleteSimulatorWithContext:context andStatus:BPExitStatusLaunchAppFailed]);
     };
 
