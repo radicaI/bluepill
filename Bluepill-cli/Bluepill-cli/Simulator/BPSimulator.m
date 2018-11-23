@@ -505,6 +505,11 @@
 
     // Keep the simulator runner around through processing of the block
     __block typeof(self) blockSelf = self;
+    if (self.device) {
+        [BPUtils printInfo:INFO withString:@"hello device state: %@", self.device.stateString];
+    } else {
+        [BPUtils printInfo:INFO withString:@"device is null!"];
+    }
 
     [self.device launchApplicationAsyncWithID:hostBundleId options:options completionHandler:^(NSError *error, pid_t pid) {
         // Save the process ID to the monitor
