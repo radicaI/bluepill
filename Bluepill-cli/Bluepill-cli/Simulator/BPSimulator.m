@@ -405,12 +405,17 @@
          hostBundleId, hostBundlePath];
         return NO;
     }
-    [BPUtils printInfo:DEBUGINFO withString: @"installApplication: host bundleId: %@, host BundlePath: %@, testRunnerAppPath: %@", hostBundleId, hostBundlePath, self.config.testRunnerAppPath];
+    [BPUtils printInfo:INFO withString: @"installApplication: host bundleId: %@, host BundlePath: %@, testRunnerAppPath: %@", hostBundleId, hostBundlePath, self.config.testRunnerAppPath];
     // Install the host application
     BOOL installed = [self.device
                       installApplication:[NSURL fileURLWithPath:hostBundlePath]
                       withOptions:@{kCFBundleIdentifier: hostBundleId}
                       error:error];
+    if (error) {
+        [BPUtils printInfo:ERROR withString:@"install app has error: %@", error];
+    } else {
+        [BPUtils printInfo:ERROR withString:@"install app has no error"];
+    }
     if (!installed) {
         return NO;
     }
@@ -510,6 +515,8 @@
     } else {
         [BPUtils printInfo:INFO withString:@"device is null!"];
     }
+    [BPUtils printInfo:INFO withString:@"host bundle ID: %@", hostBundleId];
+    [BPUtils printInfo:INFO withString:@"launch options: %@", options];
 
     [self.device launchApplicationAsyncWithID:hostBundleId options:options completionHandler:^(NSError *error, pid_t pid) {
         // Save the process ID to the monitor
