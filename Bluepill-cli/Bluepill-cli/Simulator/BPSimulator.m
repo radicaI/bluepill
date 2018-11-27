@@ -412,7 +412,7 @@
                       withOptions:@{kCFBundleIdentifier: hostBundleId}
                       error:error];
     if (error) {
-        [BPUtils printInfo:ERROR withString:@"install app has error: %@", error];
+        [BPUtils printInfo:ERROR withString:@"install app has error"];
     } else {
         [BPUtils printInfo:ERROR withString:@"install app has no error"];
     }
