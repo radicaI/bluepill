@@ -412,13 +412,16 @@
                       withOptions:@{kCFBundleIdentifier: hostBundleId}
                       error:error];
     if (error) {
-        [BPUtils printInfo:ERROR withString:@"install app has error"];
+        [BPUtils printInfo:ERROR withString:@"install app has error: %@", [*error localizedDescription]];
+        [BPUtils printInfo:ERROR withString:@"install app has code: %@", [*error code]];
+        [BPUtils printInfo:ERROR withString:@"install app has reason: %@", [*error localizedFailureReason]];
     } else {
         [BPUtils printInfo:ERROR withString:@"install app has no error"];
     }
     if (!installed) {
         return NO;
     }
+    [BPUtils printInfo:INFO withString:@"install app returned yes"];
     return YES;
 }
 
