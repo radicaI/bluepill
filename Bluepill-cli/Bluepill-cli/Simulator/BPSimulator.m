@@ -111,7 +111,7 @@
         NSError *__autoreleasing *installError = nil;
         bool installed = [simDevice installApplication:[NSURL fileURLWithPath:testHost]
                                            withOptions:@{kCFBundleIdentifier: hostBundleId}
-                                                 error:installError];
+                                                 error:&installError];
         if (!installed) {
             [BPUtils printInfo:ERROR withString:@"Install application failed with error: %@", *installError];
             [deviceSet deleteDeviceAsync:simDevice completionHandler:^(NSError *error) {
@@ -410,10 +410,10 @@
     BOOL installed = [self.device
                       installApplication:[NSURL fileURLWithPath:hostBundlePath]
                       withOptions:@{kCFBundleIdentifier: hostBundleId}
-                      error:error];
-    if (error) {
+                      error:&error];
+    if (*error) {
         [BPUtils printInfo:ERROR withString:@"install app has error: %@", [*error localizedDescription]];
-        [BPUtils printInfo:ERROR withString:@"install app has code: %@", [*error code]];
+        [BPUtils printInfo:ERROR withString:@"install app has code: %ld", [*error code]];
         [BPUtils printInfo:ERROR withString:@"install app has reason: %@", [*error localizedFailureReason]];
     } else {
         [BPUtils printInfo:ERROR withString:@"install app has no error"];
