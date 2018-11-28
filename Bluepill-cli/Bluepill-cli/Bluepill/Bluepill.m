@@ -488,7 +488,7 @@ void onInterrupt(int ignore) {
 
 - (void)runnerCompletedWithContext:(BPExecutionContext *)context {
     NSInteger maxRetries = [context.config.errorRetriesCount integerValue];
-
+    [BPUtils printInfo:INFO withString:@"hello Saving Diagnostics ..."];
     [context.parser completed];
     if ((context.attemptNumber > maxRetries) || ![self hasRemainingTestsInContext:context]) {
         // This is the final retry, so we should force a calculation if we error'd
@@ -554,6 +554,8 @@ void onInterrupt(int ignore) {
       if (context.runner.exitStatus != BPExitStatusTestsAllPassed && _config.saveDiagnosticsOnError) {
         [BPUtils printInfo:INFO withString:@"Saving Diagnostics for Debugging"];
         [BPUtils saveDebuggingDiagnostics:_config.outputDirectory];
+      } else {
+        [BPUtils printInfo:INFO withString:@"NOT Saving Diagnostics for Debugging"];
       }
       
       [self deleteSimulatorWithContext:context andStatus:[context.runner exitStatus]];
