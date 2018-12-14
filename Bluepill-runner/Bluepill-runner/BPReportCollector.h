@@ -18,6 +18,7 @@
  */
 + (void)collectReportsFromPath:(NSString *)reportsPath
              onReportCollected:(void (^)(NSURL *fileUrl))fileHandler
-                  outputAtPath:(NSString *)finalReportPath;
+                   applyXQuery:(NSString *)XQuery
+                  withOutputAtPath:(NSString *)finalReportPath;
 
 @end

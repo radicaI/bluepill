@@ -14,7 +14,8 @@
 
 + (void)collectReportsFromPath:(NSString *)reportsPath
              onReportCollected:(void (^)(NSURL *fileUrl))fileHandler
-                  outputAtPath:(NSString *)finalReportPath {
+                   applyXQuery:(NSString *)XQuery
+                  withOutputAtPath:(NSString *)finalReportPath {
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
     NSURL *directoryURL = [NSURL fileURLWithPath:reportsPath isDirectory:YES];
@@ -43,6 +44,14 @@
         }
         else if (![isDirectory boolValue]) {
             if ([[url pathExtension] isEqualToString:@"xml"]) {
+                // Skipping over the failure logs for the total report
+                // so it only contains successes to maintain existing functionality
+                // todo: These logs actually need to be parsed for just the
+                // successes and added to the final report
+                if (!XQuery && [[url lastPathComponent] containsString:@"failure"]) {
+                    continue;
+                }
+                
                 NSError *error;
                 NSXMLDocument *doc = [[NSXMLDocument alloc] initWithContentsOfURL:url options:0 error:&error];
                 if (error) {
@@ -51,21 +60,33 @@
                     // Test results from other BP workers should continue to parse
                     continue;
                 }
-
-                // Don't withhold the parent object.
-                @autoreleasepool {
-                    NSArray *testsuitesNodes =  [doc nodesForXPath:[NSString stringWithFormat:@".//%@", @"testsuites"] error:&error];
-                    for (NSXMLElement *element in testsuitesNodes) {
+                
+                NSArray *testsuiteNodes = nil;
+                if (XQuery) {
+                    // <testsuites> refer to each .xctest run, while the first <testsuite> refers to the bundle and the second <testsuite> refers to each file in that bundle. The provided XQuery string will filter down to specific testcases based on what they contain.
+                    testsuiteNodes = [doc objectsForXQuery:[NSString stringWithFormat:@".//testsuites/testsuite/testsuite/%@/../..", XQuery] error:&error];
+                    for (NSXMLElement *element in testsuiteNodes) {
                         totalTests += [[[element attributeForName:@"tests"] stringValue] integerValue];
                         totalErrors += [[[element attributeForName:@"errors"] stringValue] integerValue];
                         totalFailures += [[[element attributeForName:@"failures"] stringValue] integerValue];
                         totalTime += [[[element attributeForName:@"time"] stringValue] doubleValue];
                     }
+                    
+                } else {
+                    // Don't withhold the parent object.
+                    @autoreleasepool {
+                        NSArray *testsuitesNodes =  [doc nodesForXPath:[NSString stringWithFormat:@".//%@", @"testsuites"] error:&error];
+                        for (NSXMLElement *element in testsuitesNodes) {
+                            totalTests += [[[element attributeForName:@"tests"] stringValue] integerValue];
+                            totalErrors += [[[element attributeForName:@"errors"] stringValue] integerValue];
+                            totalFailures += [[[element attributeForName:@"failures"] stringValue] integerValue];
+                            totalTime += [[[element attributeForName:@"time"] stringValue] doubleValue];
+                        }
+                    }
+                    
+                    testsuiteNodes = [doc nodesForXPath:[NSString stringWithFormat:@".//%@/testsuite", @"testsuites"] error:&error];
                 }
-
-                NSArray *testsuiteNodes =
-                [doc nodesForXPath:[NSString stringWithFormat:@".//%@/testsuite", @"testsuites"] error:&error];
-
+                
                 [nodesArray addObjectsFromArray:testsuiteNodes];
                 if (fileHandler) {
                     fileHandler(url);
