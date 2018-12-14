@@ -307,6 +307,17 @@ maxprocs(void)
     if (app) {
         [app terminate];
     }
+    
+    NSDictionary *otherData = [[NSDictionary alloc] initWithObjectsAndKeys:
+                               [[self.config.testBundlePath componentsSeparatedByString:@"/"] lastObject], @"Test Bundle",
+                               self.config.deviceType, @"Device Type",
+                               self.config.runtime, @"iOS Version",
+                               @XCODE_VERSION, @"XCode Version",
+                               @BP_VERSION, @"BluePill Version",
+                               [NSHost currentHost], @"Host Name",
+                               [[NSProcessInfo processInfo] operatingSystemVersionString], @"OS Version",
+                               nil];
+
     if (self.config.outputDirectory) {
         NSString *outputPath = [self.config.outputDirectory stringByAppendingPathComponent:@"TEST-FinalReport.xml"];
         NSFileManager *fm = [NSFileManager new];
@@ -318,21 +329,26 @@ maxprocs(void)
 //            NSFileManager *fm = [NSFileManager new];
 //            [fm removeItemAtURL:fileUrl error:&error];
         } applyXQuery:nil withOutputAtPath:outputPath];
-        
+
+        if (self.config.traceEventOutput) {
+            outputPath = [self.config.outputDirectory stringByAppendingPathComponent:@"TraceReport.json"];
+            [BPReportCollector collectReportsFromPath:self.config.outputDirectory withOtherData:otherData applyXQuery:@".//testsuites/testsuite/testsuite" hideSuccesses:self.config.traceEventHideSuccesses withTraceEventAtPath:outputPath];
+        }
+
         // This will output a file containing all testcases containing a <failure> but NOT with text indicating it was a timeout
         if (self.config.failureXmlOutput) {
             outputPath = [self.config.outputDirectory stringByAppendingPathComponent:@"FailureReport.xml"];
-            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:^(NSURL *fileUrl) {} applyXQuery:@"testcase/failure[@message!=\"Timed out waiting for the test to produce output. Test was aborted.\"]" withOutputAtPath:outputPath];
+            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:nil applyXQuery:@"testcase/failure[@message!=\"Timed out waiting for the test to produce output. Test was aborted.\"]" withOutputAtPath:outputPath];
         }
         // This will output a file containing all testcases containing an <error>
         if (self.config.errorXmlOutput) {
             outputPath = [self.config.outputDirectory stringByAppendingPathComponent:@"ErrorReport.xml"];
-            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:^(NSURL *fileUrl) {} applyXQuery:@"testcase/error" withOutputAtPath:outputPath];
+            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:nil applyXQuery:@"testcase/error" withOutputAtPath:outputPath];
         }
         // This will output a file containing all testcases containing a <failure> AND with text indicating it was a timeout
         if (self.config.timeoutXmlOutput) {
             outputPath = [self.config.outputDirectory stringByAppendingPathComponent:@"TimeoutReport.xml"];
-            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:^(NSURL *fileUrl) {} applyXQuery:@"testcase/failure[@message=\"Timed out waiting for the test to produce output. Test was aborted.\"]" withOutputAtPath:outputPath];
+            [BPReportCollector collectReportsFromPath:self.config.outputDirectory onReportCollected:nil applyXQuery:@"testcase/failure[@message=\"Timed out waiting for the test to produce output. Test was aborted.\"]" withOutputAtPath:outputPath];
         }
     }
 

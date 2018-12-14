@@ -153,6 +153,12 @@ struct BPOptions {
         "Create a separate XML report containing only test errors."},
     {367, "timeout-xml-output", BP_MASTER | BP_SLAVE, NO, NO, no_argument, "Off", BP_VALUE | BP_BOOL, "timeoutXmlOutput",
         "Create a separate XML report containing only test timeouts."},
+    {368, "trace-event-output", BP_MASTER | BP_SLAVE, NO, NO, no_argument, "Off", BP_VALUE | BP_BOOL, "traceEventOutput",
+        "Create a TraceEvent JSON report."},
+    {369, "trace-event-hide-successes", BP_MASTER | BP_SLAVE, NO, NO, no_argument, "Off", BP_VALUE | BP_BOOL, "traceEventHideSuccesses",
+        "Remove successful events from the TraceEvent output."},
+
+
     {0, 0, 0, 0, 0, 0, 0}
 };
 

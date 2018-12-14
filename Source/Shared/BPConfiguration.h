@@ -88,6 +88,8 @@ typedef NS_ENUM(NSInteger, BPProgram) {
 @property (nonatomic) BOOL failureXmlOutput;
 @property (nonatomic) BOOL errorXmlOutput;
 @property (nonatomic) BOOL timeoutXmlOutput;
+@property (nonatomic) BOOL traceEventOutput;
+@property (nonatomic) BOOL traceEventHideSuccesses;
 
 
 @property (nonatomic, strong) NSArray<NSString *> *commandLineArguments; // command line arguments for the app
