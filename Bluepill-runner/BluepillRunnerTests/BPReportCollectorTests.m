@@ -30,6 +30,29 @@
 - (void)testCollectReportsFromPath {
     NSString *path = [[NSBundle bundleForClass:[self class]] resourcePath];
     NSString *outputPath = [path stringByAppendingPathComponent:@"result.xml"];
+    [BPReportCollector collectReportsFromPath:path onReportCollected:nil outputAtPath:outputPath];
+    NSData *data = [NSData dataWithContentsOfFile:outputPath];
+    NSError *error;
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data options:0 error:&error];
+    XCTAssertNil(error);
+    NSArray *testsuitesNodes =  [doc nodesForXPath:[NSString stringWithFormat:@".//%@", @"testsuites"] error:&error];
+    NSXMLElement *root = testsuitesNodes[0];
+
+    NSLog([[root attributeForName:@"failures"] stringValue]);
+
+    XCTAssertTrue([[[root attributeForName:@"tests"] stringValue] isEqualToString:@"813"], @"test count is wrong");
+    XCTAssertTrue([[[root attributeForName:@"errors"] stringValue] isEqualToString:@"6"], @"test count is wrong");
+    XCTAssertTrue([[[root attributeForName:@"failures"] stringValue] isEqualToString:@"12"], @"test count is wrong");
+
+    NSLog(@"%@, %@, %@", [[root attributeForName:@"tests"] stringValue], [[root attributeForName:@"errors"] stringValue], [[root attributeForName:@"failures"] stringValue]);
+    NSFileManager *fm = [NSFileManager new];
+    [fm removeItemAtPath:outputPath error:&error];
+    XCTAssertNil(error);
+}
+
+- (void)testCollectReportsFromPathWithMerge {
+    NSString *path = [[NSBundle bundleForClass:[self class]] resourcePath];
+    NSString *outputPath = [path stringByAppendingPathComponent:@"result.xml"];
     [BPReportCollector collectReportsFromPath:path onReportCollected:^(NSURL *fileUrl) {
         NSError *error;
         NSFileManager *fm = [NSFileManager new];
@@ -42,13 +65,12 @@
     XCTAssertNil(error);
     NSArray *testsuitesNodes =  [doc nodesForXPath:[NSString stringWithFormat:@".//%@", @"testsuites"] error:&error];
     NSXMLElement *root = testsuitesNodes[0];
-    XCTAssertTrue([[[root attributeForName:@"tests"] stringValue] isEqualToString:@"271"], @"test count is wrong");
-    XCTAssertTrue([[[root attributeForName:@"errors"] stringValue] isEqualToString:@"2"], @"test count is wrong");
-    XCTAssertTrue([[[root attributeForName:@"failures"] stringValue] isEqualToString:@"4"], @"test count is wrong");
-
-    NSLog(@"%@, %@, %@", [[root attributeForName:@"tests"] stringValue], [[root attributeForName:@"errors"] stringValue], [[root attributeForName:@"failures"] stringValue]);
+    // Output file should contain as many <testcase> as unique named testcases in the result files
+    XCTAssertEqual([[root childAtIndex:0] childCount], 2);
     NSFileManager *fm = [NSFileManager new];
     [fm removeItemAtPath:outputPath error:&error];
     XCTAssertNil(error);
+
 }
+
 @end
