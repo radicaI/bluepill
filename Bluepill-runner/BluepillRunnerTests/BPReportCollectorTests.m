@@ -38,8 +38,6 @@
     NSArray *testsuitesNodes =  [doc nodesForXPath:[NSString stringWithFormat:@".//%@", @"testsuites"] error:&error];
     NSXMLElement *root = testsuitesNodes[0];
 
-    NSLog([[root attributeForName:@"failures"] stringValue]);
-
     XCTAssertTrue([[[root attributeForName:@"tests"] stringValue] isEqualToString:@"813"], @"test count is wrong");
     XCTAssertTrue([[[root attributeForName:@"errors"] stringValue] isEqualToString:@"6"], @"test count is wrong");
     XCTAssertTrue([[[root attributeForName:@"failures"] stringValue] isEqualToString:@"12"], @"test count is wrong");
@@ -70,7 +68,6 @@
     NSFileManager *fm = [NSFileManager new];
     [fm removeItemAtPath:outputPath error:&error];
     XCTAssertNil(error);
-
 }
 
 @end
